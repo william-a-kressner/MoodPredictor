@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1050249034200",
+    "firebase_url": "https://moodpredictor-5e993.firebaseio.com",
+    "project_id": "moodpredictor-5e993",
+    "storage_bucket": "moodpredictor-5e993.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050249034200:android:7fd21b2a3939fc0ab41aad",
+        "android_client_info": {
+          "package_name": "com.example.moodpredictor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1050249034200-gahkpls8dj0sdntbqpbl5uk1asqg9sf4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodpredictor",
+            "certificate_hash": "dd4eaabf9c6ef2f20914f06e655c88509365cc6e"
+          }
+        },
+        {
+          "client_id": "1050249034200-as69lnocpanhjp19t11vqdi5mdbhedhh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChn8HomHNkyOrRzfOpuPzDKnPjOX_Yb7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1050249034200-as69lnocpanhjp19t11vqdi5mdbhedhh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
