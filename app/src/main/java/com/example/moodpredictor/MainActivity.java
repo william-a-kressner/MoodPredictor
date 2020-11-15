@@ -38,9 +38,10 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null){
             Log.d("William", "Found a user");
             //We can use the app: we're signed in
+            connected();
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("foo");
-            myRef.setValue("bar");
+            DatabaseReference myRef = database.getReference(currentUser.getUid());
+            myRef.setValue(new ListeningData());
         }
         else{
             //We're not signed in: take us to the screen.
@@ -84,7 +85,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected() {
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        Log.d("MainActivity", track.name + " by " + track.artist.name);
+                        // Store the song in the user's listening data object
+                    }
+                });
     }
 
     @Override
