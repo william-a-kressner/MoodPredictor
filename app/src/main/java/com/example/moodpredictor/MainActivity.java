@@ -12,6 +12,8 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -36,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null){
             Log.d("William", "Found a user");
             //We can use the app: we're signed in
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("foo");
+            myRef.setValue("bar");
         }
         else{
             //We're not signed in: take us to the screen.
