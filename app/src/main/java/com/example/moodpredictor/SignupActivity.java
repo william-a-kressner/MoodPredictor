@@ -55,6 +55,8 @@ public class SignupActivity extends AppCompatActivity {
                             int duration = Toast.LENGTH_SHORT;
                             Toast toast = Toast.makeText(context, text, duration);
                             toast.show();
+                            Intent intent = new Intent(context, MainActivity.class);
+                            startActivity(intent);
                         }else{
                             Log.d("William", task.getException().toString());
                             Log.d("William", "Account creation failure");
@@ -65,7 +67,5 @@ public class SignupActivity extends AppCompatActivity {
                         }
                     }
                 });
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 }
