@@ -24,6 +24,8 @@ public class MoodView extends AppCompatActivity {
     private static final String CLIENT_ID = "97ed99b3b2bc461da6bfe088bbd4d8c9";
     private static final String REDIRECT_URI = "http://com.example.moodpredictor/callback";
     private SpotifyAppRemote mSpotifyAppRemote;
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +33,10 @@ public class MoodView extends AppCompatActivity {
         setContentView(R.layout.activity_mood_view);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(currentUser.getUid());
-        myRef.setValue("foo");
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference(currentUser.getUid()).child("Listening Data");
+        // test: 1hzVfz
+        // wak: aLMxk...
     }
 
     @Override
@@ -69,6 +72,7 @@ public class MoodView extends AppCompatActivity {
                     if (track != null) {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                         // Store the song in the user's listening data object
+                        writeNewListeningData(track);
                     }
          });
     }
@@ -89,6 +93,10 @@ public class MoodView extends AppCompatActivity {
         toast.show();
         Intent intent = new Intent(context, SplashScreenActivity.class);
         startActivity(intent);
+    }
 
+    private void writeNewListeningData(Track track){
+        ListeningData ld = new ListeningData(track);
+        myRef.child(track.uri).setValue(ld);
     }
 }
