@@ -97,6 +97,11 @@ public class MoodView extends AppCompatActivity {
 
     private void writeNewListeningData(Track track){
         ListeningData ld = new ListeningData(track);
-        myRef.child(track.uri).setValue(ld);
+        myRef.child(String.valueOf(ld.localDateTime.getYear()))
+                .child(String.valueOf(ld.localDateTime.getDayOfYear()))
+                .child(String.valueOf(ld.timeOfDay))
+                .child(track.uri)
+                .setValue(ld);
+
     }
 }
