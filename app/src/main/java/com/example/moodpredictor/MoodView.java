@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,6 +28,13 @@ public class MoodView extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
 
+    private Handler mHandler;
+    private int mInterval = 5000;
+    //private Runnable changeDetector;
+
+    private Track currentTrack;
+    private Track newTrack;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,9 +43,18 @@ public class MoodView extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(currentUser.getUid()).child("Listening Data");
+        mHandler = new Handler();
+        startListening();
         // test: 1hzVfz
         // wak: aLMxk...
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopListening();
+    }
+
 
     @Override
     protected void onStart() {
@@ -54,6 +71,8 @@ public class MoodView extends AppCompatActivity {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("William", "Connected!");
+                        //SongChangeListener songChangeListener = new SongChangeListener(mSpotifyAppRemote);
+                        //songChangeListener.run();
                         connected();
                     }
 
@@ -64,16 +83,44 @@ public class MoodView extends AppCompatActivity {
 
     }
 
+    Runnable changeDetector = new Runnable() {
+        @Override
+        public void run(){
+            try {
+                Log.d("William", "**RUNNING**");
+                if (currentTrack != newTrack){
+                    if (currentTrack != null)
+                        Log.d("SongChangeListener", "Detected a change in the song! Updating the current track from " +
+                                currentTrack.toString() +
+                                " to " + newTrack.toString());
+                    else
+                        Log.d("SongChangeListener", "Detected a change in the song! Updating the current track from " +
+                                "null" +
+                                " to " + newTrack.toString());
+                    currentTrack = newTrack;
+                }
+            }
+            finally {
+                mHandler.postDelayed(changeDetector, mInterval);
+            }
+        }
+    };
+
+    public void startListening(){
+        changeDetector.run();
+    }
+
+    public void stopListening(){
+        mHandler.removeCallbacks(changeDetector);
+    }
+
     private void connected() {
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {
                     final Track track = playerState.track;
-                    if (track != null) {
-                        Log.d("MainActivity", track.name + " by " + track.artist.name);
-                        // Store the song in the user's listening data object
-                        writeNewListeningData(track);
-                    }
+                    newTrack = track;
+                    Log.d("MainActivity", track.name + " by " + track.artist.name);
          });
     }
 
@@ -95,13 +142,5 @@ public class MoodView extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void writeNewListeningData(Track track){
-        ListeningData ld = new ListeningData(track);
-        myRef.child(String.valueOf(ld.localDateTime.getYear()))
-                .child(String.valueOf(ld.localDateTime.getDayOfYear()))
-                .child(String.valueOf(ld.timeOfDay))
-                .child(track.uri)
-                .setValue(ld);
 
-    }
 }
