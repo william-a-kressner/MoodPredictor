@@ -1,19 +1,16 @@
 package com.example.moodpredictor;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,17 +19,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MoodView extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -44,16 +33,13 @@ public class MoodView extends AppCompatActivity {
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPreferences;
     private RequestQueue queue;
+    private CurrentlyPlayingService currentlyPlayingService;
 
     private SpotifyAppRemote mSpotifyAppRemote;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
 
-    private Handler mHandler;
-    private int mInterval = 5000;
-
-    private Track currentTrack;
-    private Track newTrack;
+    private Song currentSong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +58,21 @@ public class MoodView extends AppCompatActivity {
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
+        currentlyPlayingService = new CurrentlyPlayingService(getApplicationContext());
+
         sharedPreferences = this.getSharedPreferences("SPOTIFY", 0);
         queue = Volley.newRequestQueue(this);
 
 
-        mHandler = new Handler();
-        //startListening();
+
         // test: 1hzVfz
         // wak: aLMxk...
+    }
+
+    public void getCurrentSong(View view){
+        currentlyPlayingService.getCurrentlyPlayingTrack(() -> {
+            Log.d("William", "This is the callback");
+        });
     }
 
     @Override
@@ -94,11 +87,6 @@ public class MoodView extends AppCompatActivity {
                     editor.putString("token", response.getAccessToken());
                     Log.d("William", "Got an auth token!");
                     editor.apply();
-
-                    get(()->{
-                        Log.d("William", "get request is happening");
-                    });
-
                     break;
                 case ERROR:
                     Log.d("William", "auth error");
@@ -111,30 +99,9 @@ public class MoodView extends AppCompatActivity {
 
     }
 
-    public void get(final VolleyCallBack callBack){
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("https://api.spotify.com/v1/me", null, response -> {
-            Log.d("William", response.toString());
-            callBack.onSuccess();
-        }, error -> get(()->{
-
-        })){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String, String> headers = new HashMap<>();
-                String token = sharedPreferences.getString("token", "");
-                String auth = "Bearer " + token;
-                headers.put("Authorization", auth);
-                return headers;
-            }
-
-        };
-        queue.add(jsonObjectRequest);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //stopListening();
     }
 
 
@@ -161,36 +128,6 @@ public class MoodView extends AppCompatActivity {
                 });
 
     }
-
-    /*Runnable changeDetector = new Runnable() {
-        @Override
-        public void run(){
-            try {
-                Log.d("William", "**RUNNING**");
-                if (currentTrack != newTrack){
-                    if (currentTrack != null)
-                        Log.d("SongChangeListener", "Detected a change in the song! Updating the current track from " +
-                                currentTrack.toString() +
-                                " to " + newTrack.toString());
-                    else
-                        Log.d("SongChangeListener", "Detected a change in the song! Updating the current track from " +
-                                "null" +
-                                " to " + newTrack.toString());
-                    currentTrack = newTrack;
-                }
-            } finally {
-                mHandler.postDelayed(changeDetector, mInterval);
-            }
-        }
-    };
-
-    public void startListening(){
-        changeDetector.run();
-    }
-
-    public void stopListening(){
-        mHandler.removeCallbacks(changeDetector);
-    }*/
 
     @Override
     protected void onStop() {
