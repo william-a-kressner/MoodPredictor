@@ -58,11 +58,13 @@ public class MoodView extends AppCompatActivity {
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
-        currentlyPlayingService = new CurrentlyPlayingService(getApplicationContext());
+        //currentlyPlayingService = new CurrentlyPlayingService(getApplicationContext());
 
         sharedPreferences = this.getSharedPreferences("SPOTIFY", 0);
         queue = Volley.newRequestQueue(this);
 
+        Intent intent = new Intent(this, CurrentlyPlayingService.class);
+        startService(intent);
 
 
         // test: 1hzVfz
