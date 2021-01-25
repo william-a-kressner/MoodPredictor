@@ -58,24 +58,29 @@ public class MoodView extends AppCompatActivity {
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
-        //currentlyPlayingService = new CurrentlyPlayingService(getApplicationContext());
+
 
         sharedPreferences = this.getSharedPreferences("SPOTIFY", 0);
         queue = Volley.newRequestQueue(this);
+        CurrentlyPlayingService currentlyPlayingService = new CurrentlyPlayingService(this);
+        currentlyPlayingService.init();
 
-        Intent intent = new Intent(this, CurrentlyPlayingService.class);
-        startService(intent);
+        //Intent intent = new Intent(this, CurrentlyPlayingService.class);
+        //intent.putExtra("token", authToken);
+        //startService(intent);
+
 
 
         // test: 1hzVfz
         // wak: aLMxk...
     }
 
+    /*
     public void getCurrentSong(View view){
         currentlyPlayingService.getCurrentlyPlayingTrack(() -> {
             Log.d("William", "This is the callback");
         });
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent){
@@ -87,6 +92,7 @@ public class MoodView extends AppCompatActivity {
                 case TOKEN:
                     editor = getSharedPreferences("SPOTIFY", 0).edit();
                     editor.putString("token", response.getAccessToken());
+                    authToken = response.getAccessToken();
                     Log.d("William", "Got an auth token!");
                     editor.apply();
                     break;
